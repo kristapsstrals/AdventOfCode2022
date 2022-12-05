@@ -127,9 +127,7 @@ move 1 from 1 to 2";
             var move = moves.Dequeue();
             var crates = res[move.From].GetRange(0, move.Count);
             foreach(var _ in Enumerable.Range(0, move.Count)) {
-                // var crate = res[move.From].First();
                 res[move.From].RemoveAt(0);
-                // res[move.To].Insert(0, crate);
             }
 
             res[move.To].InsertRange(0, crates);
