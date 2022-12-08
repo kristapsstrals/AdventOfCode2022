@@ -11,6 +11,14 @@ public class UnitTest1
         Assert.Equal(95437, result);
     }
 
+    [Fact]
+    public void Problem2Test()
+    {
+        var input = testData.Split(Environment.NewLine);
+        var result = Program.SolveSecondProblem(input);
+        Assert.Equal(24933642, result);
+    }
+
     string testData = @"$ cd /
 $ ls
 dir a
