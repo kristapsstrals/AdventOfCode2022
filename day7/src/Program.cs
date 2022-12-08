@@ -2,13 +2,20 @@
 
 public class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
+        var input = await File.ReadAllLinesAsync("./input.txt");
+        var first = SolveFirstProblem(input);
+        // var second = solveSecondProblem(input);
+        // if (second >= 4094)
+        //     throw new Exception("value too high");
+
+        Console.WriteLine($"First: {first}");
+        // Console.WriteLine($"Second: {second}");
     }
 
-    public static long SolveProblem1(string[] input) {
-        var fileSystem = new List<TestDirectory>();
+    public static long SolveFirstProblem(string[] input) {
+        TestDirectory root = null;
         TestDirectory currentDirectory = null;
         foreach (var line in input) {
             var trimmed = line.Trim().TrimEnd('\r');
@@ -28,26 +35,70 @@ public class Program
                             throw new Exception("tried to go to a null directory");
 
                         currentDirectory = currentDirectory.ParentDirectory;
+                        continue;
                     }
 
-                    var newDir = new TestDirectory(){
-                        Name = directory
-                    };
+                    if (currentDirectory == null) {
+                        root = new TestDirectory(){
+                            Name = directory
+                        };
 
-                    currentDirectory = newDir;
+                        currentDirectory = root;
+                        continue;
+                    }
 
-                    fileSystem.Add(newDir);
+
+                    currentDirectory = currentDirectory.SubDirectories.Find(d => d.Name == directory);
+
                     break;
                 case 'd':
+                    if (currentDirectory == null)
+                        throw new Exception();
+
+                    currentDirectory.SubDirectories.Add(new TestDirectory(){
+                        Name = trimmed.Split(" ").Last().Trim(),
+                        ParentDirectory = currentDirectory
+                    });
                     // handle directory
                     break;
                 default:
+                    var parts = trimmed.Split(" ");
+                    if (parts.Length != 2 || currentDirectory == null)
+                        throw new Exception();
+
+                    var size = parts[0];
+                    var fileName = parts[1];
+                    currentDirectory.Files.Add(new TestFile(){
+                        Name = fileName,
+                        Size = long.Parse(size)
+                    });
                     // should be file size
                     break;
             }
         }
 
-        return 0;
+        var subDirs = GetDirs(root);
+
+        var sum = subDirs.Sum(s => s.Size);
+
+        return sum;
+    }
+
+    static List<TestDirectory> GetDirs(TestDirectory directory) {
+
+        var list = new List<TestDirectory>();
+        if (directory.Size <= 100000)
+        {
+            list.Add(directory);
+            // return list;
+        }
+
+        foreach (var dir in directory.SubDirectories) {
+            var dirs = GetDirs(dir);
+            list.AddRange(dirs);
+        }
+
+        return list;
     }
 
     private static string? HandleCommand(string line) {
@@ -76,4 +127,6 @@ internal class TestDirectory {
     public string Name { get; set; }
     public List<TestFile> Files { get; set; } = new List<TestFile>();
     public List<TestDirectory> SubDirectories { get ;set; } = new List<TestDirectory>();
+
+    public long Size => SubDirectories.Sum(d => d.Size) + Files.Sum(f => f.Size);
 }

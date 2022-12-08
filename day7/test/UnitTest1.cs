@@ -7,7 +7,7 @@ public class UnitTest1
     public void Problem1Test()
     {
         var input = testData.Split(Environment.NewLine);
-        var result = Program.SolveProblem1(input);
+        var result = Program.SolveFirstProblem(input);
         Assert.Equal(95437, result);
     }
 
