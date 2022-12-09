@@ -1,0 +1,84 @@
+﻿﻿namespace day9;
+
+public class Program
+{
+    private static async Task Main(string[] args)
+    {
+        var input = await File.ReadAllLinesAsync("./input.txt");
+        var first = SolveProblem1(input);
+        var second = SolveProblem2(input);
+
+        Console.WriteLine($"First: {first}");
+        Console.WriteLine($"Second: {second}");
+    }
+
+    public static int SolveProblem1(string[] input) {
+        var trimmedLines = input.Select(l => l.Trim().TrimEnd('\r'));
+
+        var headPosition = new Coordinate() { X = 0, Y = 0 };
+        var tailPosition = new Coordinate() { X = 0, Y = 0 };
+        var tailVisitedPositions = new List<Coordinate>() {
+            new Coordinate() { X = tailPosition.X, Y = tailPosition.Y }
+        };
+
+        foreach(var line in trimmedLines) {
+            var split = line.Split(" ");
+            var direction = split[0];
+            var steps = Int32.Parse(split[1]);
+            for (int i = 0; i < steps; i++)
+            {    
+                MoveCoordinate(headPosition, direction);
+
+                var distanceX = headPosition.X - tailPosition.X;
+                var distanceY = headPosition.Y - tailPosition.Y;
+
+                if (Math.Abs(distanceX) > 1 || Math.Abs(distanceY) > 1) {
+                    if (distanceX != 0 && tailPosition.X > headPosition.X)
+                        tailPosition.X--;
+                    if (distanceX != 0 && tailPosition.X < headPosition.X)
+                        tailPosition.X++;
+
+                    if (distanceY != 0 && tailPosition.Y > headPosition.Y)
+                        tailPosition.Y--;
+                    if (distanceY != 0 && tailPosition.Y < headPosition.Y)
+                        tailPosition.Y++;
+
+                    // MoveCoordinate(tailPosition, direction);
+                    if (!tailVisitedPositions.Any(p => p.X == tailPosition.X && p.Y == tailPosition.Y))
+                        tailVisitedPositions.Add(
+                            new Coordinate() { X = tailPosition.X, Y = tailPosition.Y }
+                        );
+                }
+            }
+        }
+
+        return tailVisitedPositions.Count;
+    }
+
+    public static int SolveProblem2(string[] input) {
+        return 0;
+    }
+
+    static void MoveCoordinate(Coordinate coordinate, string direction) {
+        switch(direction) {
+            case "U":
+                coordinate.Y++;
+                break;
+            case "D":
+                coordinate.Y--;
+                break;
+            case "L":
+                coordinate.X--;
+                break;
+            case "R":
+                coordinate.X++;
+                break;
+        }
+    }
+}
+
+public class Coordinate
+{
+    public long X { get; set; }
+    public long Y { get; set; }
+}
